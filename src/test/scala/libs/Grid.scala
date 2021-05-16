@@ -4,19 +4,28 @@ import utest.*
 
 object GridTests extends TestSuite:
   val tests = Tests {
-    test("Grid as collection") {
-      val p1 = 0 -> 0 -> "0,0"
-      val p2 = 1 -> 0 -> "1,0"
-      val p3 = 0 -> 1 -> "0,1"
-      val p4 = 1 -> 1 -> "1,0"
+    val p00 = 0 -> 0 -> "0,0"
+    val p10 = 1 -> 0 -> "1,0"
+    val p01 = 0 -> 1 -> "0,1"
+    val p11 = 1 -> 1 -> "1,1"
+    val p02 = 0 -> 2 -> "0,2"
+    val p12 = 1 -> 2 -> "1,2"
 
-      var g = Grid[String](2, 2) + p1
+    test("Grid as collection") {
+      var g: Grid[String] = Grid[String](2, 2) + p00
 
       g.get(1 -> 2) ==> None
       g.get(0 -> 1) ==> None
 
-      g += p3
+      g += p01
       g.get(0 -> 1) ==> Some("0,1")
       g(0 -> 1) ==> "0,1"
+    }
+
+    test("row and collumn operations") {
+      val g: Grid[String] =
+        Grid(2, 3) ++ Seq(p00, p10, p01, p11, p02, p12)
+
+      g.getRow(0) ==> Seq(p00, p01, p02)
     }
   }
