@@ -1,13 +1,12 @@
 package libs
 import scala.collection.immutable.{HashMap}
-import scala.annotation.unchecked.uncheckedVariance
 
 type GridPos = (Int, Int)
 
 case class Grid[+V](
     val width: Int,
     val height: Int,
-    val map: HashMap[GridPos, V] = HashMap()
+    private val map: HashMap[GridPos, V] = HashMap()
 ):
   def get(x: Int, y: Int) = map.get((x, y))
   def get(pos: GridPos) = map.get(pos)
