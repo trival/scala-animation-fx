@@ -12,7 +12,7 @@ object GridTests extends TestSuite:
     val p12 = 1 -> 2 -> "1,2"
 
     test("Grid as collection") {
-      var g: Grid[String] = Grid[String](2, 2) + p00
+      var g = Grid[String](2, 2) + p00
 
       g.get(1 -> 2) ==> None
       g.get(0 -> 1) ==> None
