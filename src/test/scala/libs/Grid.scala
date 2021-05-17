@@ -12,20 +12,19 @@ object GridTests extends TestSuite:
     val p12 = 1 -> 2 -> "1,2"
 
     test("Grid as collection") {
-      var g = Grid[String](2, 2) + p00
+      var g = Grid[String](2, 2).set(p00)
 
       g.get(1 -> 2) ==> None
       g.get(0 -> 1) ==> None
 
       g += p01
       g.get(0 -> 1) ==> Some("0,1")
-      g(0 -> 1) ==> "0,1"
     }
 
     test("row and collumn operations") {
       val g: Grid[String] =
         Grid(2, 3) ++ Seq(p00, p10, p01, p11, p02, p12)
 
-      g.getRow(0) ==> Seq(p00, p01, p02)
+      g.getRow(0) ==> Seq(Some(p00._2), Some(p10._2))
     }
   }
