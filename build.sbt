@@ -1,14 +1,14 @@
-scalaVersion := "3.0.0-RC3"
+scalaVersion := "3.0.0"
 
 lazy val root = project
   .in(file("."))
   .settings(
     name := "animation-fx",
     version := "0.1.0",
-    libraryDependencies += "com.lihaoyi" %% "utest" % "0.7.9" % "test",
+    libraryDependencies += "com.lihaoyi" %% "utest" % "0.7.10" % "test",
     testFrameworks += new TestFramework("utest.runner.Framework"),
     // Add dependency on ScalaFX library
-    libraryDependencies += "org.scalafx" %% "scalafx" % "16.0.0-R22",
+    libraryDependencies += "org.scalafx" %% "scalafx" % "16.0.0-R24",
 
     // Determine OS version of JavaFX binaries
     libraryDependencies ++= javaFXModules
