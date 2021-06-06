@@ -1,11 +1,8 @@
 package libs.vecs
 
-import scala.language.implicitConversions
-
 // === Vec2 ===
 
 case class Vec2(x: Double, y: Double):
-  inline def apply(a: Double) = Vec2(a, a)
   inline def +(v: Vec2) = Vec2(x + v.x, y + v.y)
   inline def +(a: Double) = Vec2(a + x, a + y)
   inline def *(v: Vec2) = Vec2(x * v.x, y * v.y)
@@ -45,17 +42,16 @@ case class Vec4(x: Double, y: Double, z: Double, w: Double)
   inline def *(v: Vec4) = Vec4(x * v.x, y * v.y, z * v.z, w * v.w)
   inline def *(a: Double) = Vec4(a * x, a * y, a * z, w * a)
   inline infix def dot(v: Vec4): Double = x * v.x + y * v.y + z * v.z + w * v.w
-
 end Vec4
 
 case object Vec4:
   inline def apply(a: Double): Vec4 = Vec4(a, a, a, a)
-  inline def apply(v: Vec2, a: Double, b: Double): Vec4 = Vec4(v.x, v.y, a, b)
-  inline def apply(a: Double, v: Vec2, b: Double): Vec4 = Vec4(a, v.x, v.y, b)
-  inline def apply(a: Double, b: Double, v: Vec2): Vec4 = Vec4(a, b, v.x, v.y)
   inline def apply(v: Vec3, a: Double): Vec4 = Vec4(v.x, v.y, v.z, a)
   inline def apply(a: Double, v: Vec3): Vec4 = Vec4(a, v.x, v.y, v.z)
   inline def apply(v1: Vec2, v2: Vec2): Vec4 = Vec4(v1.x, v1.y, v2.x, v2.y)
+  inline def apply(v: Vec2, a: Double, b: Double): Vec4 = Vec4(v.x, v.y, a, b)
+  inline def apply(a: Double, v: Vec2, b: Double): Vec4 = Vec4(a, v.x, v.y, b)
+  inline def apply(a: Double, b: Double, v: Vec2): Vec4 = Vec4(a, b, v.x, v.y)
 end Vec4
 
 // === Extensions ===
@@ -112,8 +108,8 @@ trait PartialVectors3(x: Double, y: Double, z: Double):
 
   inline def xyz = Vec3(x, y, z)
   inline def xzy = Vec3(x, z, y)
-  inline def yxz = Vec3(z, x, y)
-  inline def yzx = Vec3(z, y, x)
+  inline def yxz = Vec3(y, x, z)
+  inline def yzx = Vec3(y, z, x)
   inline def zxy = Vec3(z, x, y)
   inline def zyx = Vec3(z, y, x)
 
