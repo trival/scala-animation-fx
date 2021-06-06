@@ -40,8 +40,11 @@ object VecsTests extends TestSuite:
     }
 
     test("Vec3") {
-      test("have unary constructor") {
+      test("have compable constructor") {
+        val v = Vec2(1, 2)
         Vec3(2) ==> Vec3(2, 2, 2)
+        Vec3(3, v) ==> Vec3(3, 1, 2)
+        Vec3(v, 3) ==> Vec3(1, 2, 3)
       }
 
       test("can add") {
@@ -67,11 +70,28 @@ object VecsTests extends TestSuite:
         (2, 3, 4) + (3, 4, 5) ==> Vec3(5, 7, 9)
         (2, 3, 4) + 3 ==> Vec3(5, 6, 7)
       }
+
+      test("have partial component accessors") {
+        val v = Vec3(1, 2, 3)
+        v.xy ==> Vec2(1, 2)
+        v.yx ==> Vec2(2, 1)
+        v.zyx ==> Vec3(3, 2, 1)
+        v.xyz ==> v
+        v.xxxx ==> Vec4(1)
+      }
     }
 
     test("Vec4") {
-      test("have unary constructor") {
+      test("have composable constructor") {
+        val v2 = (1, 2)
+        val v3 = (1, 2, 3)
         Vec4(2) ==> Vec4(2, 2, 2, 2)
+        Vec4(v3, 4) ==> Vec4(1, 2, 3, 4)
+        Vec4(4, v3) ==> Vec4(4, 1, 2, 3)
+        Vec4(v2, v2) ==> Vec4(1, 2, 1, 2)
+        Vec4(v2, 3, 4) ==> Vec4(1, 2, 3, 4)
+        Vec4(3, v2, 4) ==> Vec4(3, 1, 2, 4)
+        Vec4(3, 4, v2) ==> Vec4(3, 4, 1, 2)
       }
 
       test("can add") {
@@ -91,6 +111,18 @@ object VecsTests extends TestSuite:
         val v2 = Vec4(2, 3, 4, 5)
         val v3 = v1 dot v2
         v3 ==> 40
+      }
+
+      test("have partial component accessors") {
+        val v = Vec4(1, 2, 3, 4)
+        v.xy ==> Vec2(1, 2)
+        v.yx ==> Vec2(2, 1)
+        v.zyx ==> Vec3(3, 2, 1)
+        v.xyz ==> Vec3(1, 2, 3)
+
+        v.zyxw ==> Vec4(3, 2, 1, 4)
+        v.xyzw ==> v
+        v.www ==> Vec3(4, 4, 4)
       }
 
       test("convert tuples to vecs") {
