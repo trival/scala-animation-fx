@@ -1,4 +1,5 @@
-package libs
+package libs.grid
+
 import scala.collection.immutable.{HashMap}
 
 type GridPos = (Int, Int)
