@@ -18,8 +18,8 @@ object HelloAnimation extends JFXApp3:
 
     stage = new PrimaryStage:
       title = "Animation Test"
-      width = 400
-      height = 400
+      width = 500
+      height = 500
       scene = new Scene:
         content = label
 

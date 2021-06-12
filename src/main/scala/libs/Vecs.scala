@@ -1,12 +1,40 @@
 package libs.vecs
 
+sealed trait Vec[A](val size: Int):
+  private def add(a: Double, b: Double) = a + b
+  private def sub(a: Double, b: Double) = a - b
+  private def mul(a: Double, b: Double) = a * b
+  private def div(a: Double, b: Double) = a / b
+
+  inline def map(inline f: Double => Double): A
+  inline def mapConst(
+      inline f: (Double, Double) => Double,
+      c: Double
+  ): A
+  inline def combine(inline f: (Double, Double) => Double, b: A): A
+  inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B
+
+  inline def +(v: A): A = combine(add, v)
+  inline def +(a: Double): A = mapConst(add, a)
+  inline def *(v: A): A = combine(mul, v)
+  inline def *(a: Double): A = mapConst(mul, a)
+  inline def -(v: A): A = combine(sub, v)
+  inline def -(a: Double): A = mapConst(sub, a)
+  inline def /(v: A): A = combine(div, v)
+  inline def /(a: Double): A = mapConst(div, a)
+
+  inline def length = Math.sqrt(foldLeft(0.0)((l, n) => l + (n * n)))
+
 // === Vec2 ===
 
-case class Vec2(x: Double, y: Double):
-  inline def +(v: Vec2) = Vec2(x + v.x, y + v.y)
-  inline def +(a: Double) = Vec2(a + x, a + y)
-  inline def *(v: Vec2) = Vec2(x * v.x, y * v.y)
-  inline def *(a: Double) = Vec2(a * x, a * y)
+case class Vec2(x: Double, y: Double) extends Vec[Vec2](2):
+  inline def map(inline f: Double => Double) = Vec2(f(x), f(y))
+  inline def mapConst(inline f: (Double, Double) => Double, c: Double) =
+    Vec2(f(x, c), f(y, c))
+  inline def combine(inline f: (Double, Double) => Double, b: Vec2) =
+    Vec2(f(x, b.x), f(y, b.y))
+  inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B =
+    f(f(start, x), y)
 
   inline infix def dot(v: Vec2): Double = x * v.x + y * v.y
 end Vec2
@@ -18,11 +46,17 @@ end Vec2
 // === Vec3 ===
 
 case class Vec3(x: Double, y: Double, z: Double)
-    extends PartialVectors3(x, y, z):
-  inline def +(v: Vec3) = Vec3(x + v.x, y + v.y, z + v.z)
-  inline def +(a: Double) = Vec3(a + x, a + y, a + z)
-  inline def *(v: Vec3) = Vec3(x * v.x, y * v.y, z * v.z)
-  inline def *(a: Double) = Vec3(a * x, a * y, a * z)
+    extends Vec[Vec3](3)
+    with PartialVectors3(x, y, z):
+
+  inline def map(inline f: Double => Double) = Vec3(f(x), f(y), f(z))
+  inline def mapConst(inline f: (Double, Double) => Double, c: Double) =
+    Vec3(f(x, c), f(y, c), f(z, c))
+  inline def combine(inline f: (Double, Double) => Double, b: Vec3) =
+    Vec3(f(x, b.x), f(y, b.y), f(z, b.z))
+  inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B =
+    f(f(f(start, x), y), z)
+
   inline infix def dot(v: Vec3): Double = x * v.x + y * v.y + z * v.z
 end Vec3
 
@@ -35,12 +69,18 @@ end Vec3
 // === Vec4 ===
 
 case class Vec4(x: Double, y: Double, z: Double, w: Double)
-    extends PartialVectors3(x, y, z),
-      PartialVectors4(x, y, z, w):
-  inline def +(v: Vec4) = Vec4(x + v.x, y + v.y, z + v.z, w + v.w)
-  inline def +(a: Double) = Vec4(a + x, a + y, a + z, w + a)
-  inline def *(v: Vec4) = Vec4(x * v.x, y * v.y, z * v.z, w * v.w)
-  inline def *(a: Double) = Vec4(a * x, a * y, a * z, w * a)
+    extends Vec[Vec4](4)
+    with PartialVectors3(x, y, z)
+    with PartialVectors4(x, y, z, w):
+
+  inline def map(inline f: Double => Double) = Vec4(f(x), f(y), f(z), f(w))
+  inline def mapConst(inline f: (Double, Double) => Double, c: Double) =
+    Vec4(f(x, c), f(y, c), f(z, c), f(w, c))
+  inline def combine(inline f: (Double, Double) => Double, b: Vec4) =
+    Vec4(f(x, b.x), f(y, b.y), f(z, b.z), f(w, b.w))
+  inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B =
+    f(f(f(f(start, x), y), z), w)
+
   inline infix def dot(v: Vec4): Double = x * v.x + y * v.y + z * v.z + w * v.w
 end Vec4
 

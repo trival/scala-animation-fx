@@ -11,6 +11,10 @@ object VecsTests extends TestSuite:
         Vec2(2) ==> Vec2(2, 2)
       }
 
+      test("length") {
+        Vec2(4, 3).length ==> 5
+      }
+
       test("can add") {
         Vec2(2, 3) + Vec2(3, 4) ==> Vec2(5, 7)
         Vec2(2, 3) + 3 ==> Vec2(5, 6)
