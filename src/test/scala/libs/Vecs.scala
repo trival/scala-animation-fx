@@ -41,6 +41,12 @@ object VecsTests extends TestSuite:
         (2, 3) + 3 ==> Vec2(5, 6)
         (2, 3) * 2 ==> Vec2(4, 6)
       }
+
+      test("normalize") {
+        (0, 3).normalize ==> Vec2(0, 1)
+        (2, 0).normalize ==> Vec2(1, 0)
+        (2, 3).normalize ==> Vec2(2 / Math.sqrt(13), 3 / Math.sqrt(13))
+      }
     }
 
     test("Vec3") {
@@ -49,6 +55,10 @@ object VecsTests extends TestSuite:
         Vec3(2) ==> Vec3(2, 2, 2)
         Vec3(3, v) ==> Vec3(3, 1, 2)
         Vec3(v, 3) ==> Vec3(1, 2, 3)
+      }
+
+      test("length") {
+        Vec3(1, 2, 3).length ==> Math.sqrt(1 + 4 + 9)
       }
 
       test("can add") {
@@ -68,6 +78,17 @@ object VecsTests extends TestSuite:
         val v2 = Vec3(2, 3, 4)
         val v3 = v1 dot v2
         v3 ==> 20
+      }
+
+      test("normalize") {
+        (0, 3, 0).normalize ==> Vec3(0, 1, 0)
+        (2, 0, 0).normalize ==> Vec3(1, 0, 0)
+        (0, 0, 1).normalize ==> Vec3(0, 0, 1)
+        (2, 3, 4).normalize ==> Vec3(
+          2 / Math.sqrt(29),
+          3 / Math.sqrt(29),
+          4 / Math.sqrt(29)
+        )
       }
 
       test("convert tuples to vecs") {
@@ -98,6 +119,10 @@ object VecsTests extends TestSuite:
         Vec4(3, 4, v2) ==> Vec4(3, 4, 1, 2)
       }
 
+      test("length") {
+        Vec4(1, 2, 3, 4).length ==> Math.sqrt(1 + 4 + 9 + 16)
+      }
+
       test("can add") {
         Vec4(2, 3, 4, 5) + Vec4(3, 4, 5, 6) ==> Vec4(5, 7, 9, 11)
         Vec4(2, 3, 4, 5) + 3 ==> Vec4(5, 6, 7, 8)
@@ -115,6 +140,18 @@ object VecsTests extends TestSuite:
         val v2 = Vec4(2, 3, 4, 5)
         val v3 = v1 dot v2
         v3 ==> 40
+      }
+
+      test("normalize") {
+        (0, 3, 0, 0).normalize ==> Vec4(0, 1, 0, 0)
+        (2, 0, 0, 0).normalize ==> Vec4(1, 0, 0, 0)
+        (0, 0, 0, 1).normalize ==> Vec4(0, 0, 0, 1)
+        (2, 3, 4, 5).normalize ==> Vec4(
+          2 / Math.sqrt(54),
+          3 / Math.sqrt(54),
+          4 / Math.sqrt(54),
+          5 / Math.sqrt(54)
+        )
       }
 
       test("have partial component accessors") {

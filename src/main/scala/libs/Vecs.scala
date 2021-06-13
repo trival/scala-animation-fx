@@ -13,6 +13,12 @@ sealed trait Vec[A](val size: Int):
   ): A
   inline def combine(inline f: (Double, Double) => Double, b: A): A
   inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B
+  inline def foldCombine[B](
+      start: B,
+      inline fold: (B, Double) => B,
+      inline combine: (Double, Double) => Double,
+      b: A
+  ): B
 
   inline def +(v: A): A = combine(add, v)
   inline def +(a: Double): A = mapConst(add, a)
@@ -24,10 +30,22 @@ sealed trait Vec[A](val size: Int):
   inline def /(a: Double): A = mapConst(div, a)
 
   inline def length = Math.sqrt(foldLeft(0.0)((l, n) => l + (n * n)))
+  inline def normalize = this / length
+
+  inline infix def dot(v: A) = foldCombine(0.0, add, mul, v)
+
+  inline def limit(maxLength: Double): A =
+    val l = length
+    if (maxLength < l) then this * (maxLength / l)
+    else this.asInstanceOf[A]
+
+end Vec
 
 // === Vec2 ===
 
-case class Vec2(x: Double, y: Double) extends Vec[Vec2](2):
+case class Vec2(x: Double, y: Double)
+    extends Vec[Vec2](2)
+    with PartialVectors2(x, y):
   inline def map(inline f: Double => Double) = Vec2(f(x), f(y))
   inline def mapConst(inline f: (Double, Double) => Double, c: Double) =
     Vec2(f(x, c), f(y, c))
@@ -35,8 +53,16 @@ case class Vec2(x: Double, y: Double) extends Vec[Vec2](2):
     Vec2(f(x, b.x), f(y, b.y))
   inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B =
     f(f(start, x), y)
+  inline def foldCombine[B](
+      start: B,
+      inline fold: (B, Double) => B,
+      inline combine: (Double, Double) => Double,
+      b: Vec2
+  ): B =
+    fold(fold(start, combine(x, b.x)), combine(y, b.y))
 
-  inline infix def dot(v: Vec2): Double = x * v.x + y * v.y
+  inline def cross(v: Vec2) =
+    x * v.y - y * v.x
 end Vec2
 
 case object Vec2:
@@ -47,6 +73,7 @@ end Vec2
 
 case class Vec3(x: Double, y: Double, z: Double)
     extends Vec[Vec3](3)
+    with PartialVectors2(x, y)
     with PartialVectors3(x, y, z):
 
   inline def map(inline f: Double => Double) = Vec3(f(x), f(y), f(z))
@@ -56,8 +83,20 @@ case class Vec3(x: Double, y: Double, z: Double)
     Vec3(f(x, b.x), f(y, b.y), f(z, b.z))
   inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B =
     f(f(f(start, x), y), z)
+  inline def foldCombine[B](
+      start: B,
+      inline fold: (B, Double) => B,
+      inline combine: (Double, Double) => Double,
+      b: Vec3
+  ): B =
+    fold(fold(fold(start, combine(x, b.x)), combine(y, b.y)), combine(z, b.z))
 
-  inline infix def dot(v: Vec3): Double = x * v.x + y * v.y + z * v.z
+  inline def cross(v: Vec3) = Vec3(
+    y * v.z - z * v.y,
+    z * v.x - x * v.z,
+    x * v.y - y * v.x
+  )
+
 end Vec3
 
 case object Vec3:
@@ -70,6 +109,7 @@ end Vec3
 
 case class Vec4(x: Double, y: Double, z: Double, w: Double)
     extends Vec[Vec4](4)
+    with PartialVectors2(x, y)
     with PartialVectors3(x, y, z)
     with PartialVectors4(x, y, z, w):
 
@@ -80,8 +120,19 @@ case class Vec4(x: Double, y: Double, z: Double, w: Double)
     Vec4(f(x, b.x), f(y, b.y), f(z, b.z), f(w, b.w))
   inline def foldLeft[B](start: B)(inline f: (B, Double) => B): B =
     f(f(f(f(start, x), y), z), w)
-
-  inline infix def dot(v: Vec4): Double = x * v.x + y * v.y + z * v.z + w * v.w
+  inline def foldCombine[B](
+      start: B,
+      inline fold: (B, Double) => B,
+      inline combine: (Double, Double) => Double,
+      b: Vec4
+  ): B =
+    fold(
+      fold(
+        fold(fold(start, combine(x, b.x)), combine(y, b.y)),
+        combine(z, b.z)
+      ),
+      combine(w, b.w)
+    )
 end Vec4
 
 case object Vec4:
@@ -138,10 +189,22 @@ given Conversion[Vec4, (Double, Double, Double, Double)] with
 
 // === partial vector factories ===
 
-trait PartialVectors3(x: Double, y: Double, z: Double):
+trait PartialVectors2(x: Double, y: Double):
   inline def xy = Vec2(x, y)
-  inline def xz = Vec2(x, z)
   inline def yx = Vec2(y, x)
+
+  inline def xx = Vec2(x)
+  inline def yy = Vec2(y)
+
+  inline def xxx = Vec3(x)
+  inline def yyy = Vec3(y)
+
+  inline def xxxx = Vec4(x)
+  inline def yyyy = Vec4(y)
+end PartialVectors2
+
+trait PartialVectors3(x: Double, y: Double, z: Double):
+  inline def xz = Vec2(x, z)
   inline def yz = Vec2(y, z)
   inline def zx = Vec2(z, x)
   inline def zy = Vec2(z, y)
@@ -153,16 +216,8 @@ trait PartialVectors3(x: Double, y: Double, z: Double):
   inline def zxy = Vec3(z, x, y)
   inline def zyx = Vec3(z, y, x)
 
-  inline def xx = Vec2(x)
-  inline def yy = Vec2(y)
   inline def zz = Vec2(z)
-
-  inline def xxx = Vec3(x)
-  inline def yyy = Vec3(y)
   inline def zzz = Vec3(z)
-
-  inline def xxxx = Vec4(x)
-  inline def yyyy = Vec4(y)
   inline def zzzz = Vec4(z)
 end PartialVectors3
 
@@ -199,8 +254,8 @@ trait PartialVectors4(x: Double, y: Double, z: Double, w: Double):
   inline def wxy = Vec3(w, x, y)
   inline def wyz = Vec3(w, y, z)
   inline def wyx = Vec3(w, y, x)
-  inline def wzy = Vec3(w, z, x)
-  inline def wzx = Vec3(w, z, y)
+  inline def wzy = Vec3(w, z, y)
+  inline def wzx = Vec3(w, z, x)
 
   inline def xwz = Vec3(x, w, z)
   inline def xwy = Vec3(x, w, y)
