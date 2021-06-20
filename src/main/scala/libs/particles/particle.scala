@@ -13,7 +13,7 @@ trait Particle[A <: Vec with VecBase[A]](zero: A) extends ForceTarget[A]:
   var mass: Double = 1.0
   var dump: Double = 1.0
 
-  protected var force = zero
+  protected var force: A = zero
 
   inline def accelarate(): Unit =
     // println("accelerate")
